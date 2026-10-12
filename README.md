@@ -40,3 +40,4 @@ order with `git log --reverse -p`.
 - `step-1-app`: The app, with nothing testing it yet
 - `step-2-page`: A test that uses only `page`, answering the API with `page.route`
 - `step-3a-fixture`: A `network` fixture, so a test answers the API with `network.mock`
+- `step-3b-offline`: Nothing leaves the machine: the app loads, images get a test cat, and everything else is blocked

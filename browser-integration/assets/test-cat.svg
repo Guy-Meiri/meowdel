@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#ffe3d3" />
+  <path d="M98 170 L120 58 L188 118 Z M302 170 L280 58 L212 118 Z" fill="#f4a261" />
+  <path d="M118 150 L128 86 L168 122 Z M282 150 L272 86 L232 122 Z" fill="#f7c6b8" />
+  <circle cx="200" cy="215" r="118" fill="#f4a261" />
+  <circle cx="155" cy="200" r="14" fill="#2d2a32" />
+  <circle cx="245" cy="200" r="14" fill="#2d2a32" />
+  <path d="M188 238 H212 L200 252 Z" fill="#e76f51" />
+  <path
+    d="M200 252 Q186 274 170 262 M200 252 Q214 274 230 262 M150 245 H80 M150 258 L84 276 M250 245 H320 M250 258 L316 276"
+    fill="none"
+    stroke="#2d2a32"
+    stroke-width="5"
+    stroke-linecap="round"
+  />
+  <text x="200" y="372" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#2d2a32">test cat</text>
+</svg>

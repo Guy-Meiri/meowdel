@@ -13,4 +13,6 @@ test('generating adds the model result for the prompt to the workflow', async ({
 
   const image = page.getByRole('list', { name: 'Your cats' }).getByRole('img', { name: 'a cat in a tiny hat' });
   await expect(image).toHaveAttribute('src', 'https://media.meowdel.test/result-1.svg');
+  // A broken image has a naturalWidth of 0.
+  await expect(image).not.toHaveJSProperty('naturalWidth', 0);
 });

@@ -1,0 +1,97 @@
+:root {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  color: #2d2a32;
+  background: #fff7ef;
+}
+
+body {
+  margin: 0;
+}
+
+header,
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 24px 0;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.4rem;
+  color: #ff7a59;
+}
+
+form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+label {
+  font-weight: 600;
+}
+
+input,
+button {
+  font: inherit;
+  padding: 10px 16px;
+  border-radius: 12px;
+}
+
+input {
+  flex: 1;
+  border: 2px solid #f1d9c7;
+  background: #fff;
+}
+
+button {
+  border: 0;
+  font-weight: 600;
+  color: #fff;
+  background: #ff7a59;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #e8c9bd;
+  cursor: default;
+}
+
+[role='alert'] {
+  color: #c0392b;
+}
+
+ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+}
+
+li img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: #f6e7dc;
+}
+
+li p {
+  margin: 0;
+  padding: 10px 14px;
+}

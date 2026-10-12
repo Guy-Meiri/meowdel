@@ -1,4 +1,5 @@
 import { type BrowserContext, expect, type Request, type Route } from '@playwright/test';
+import { mockDefaults } from '../mocks/defaults.mock';
 import type { Endpoints } from '../mocks/endpoints';
 import { mockMedia } from '../mocks/media.mock';
 
@@ -14,8 +15,10 @@ type Reply<Body> = (Omit<Fulfill, 'json'> & { json: Body }) | (Fulfill & { statu
 export type Respond<E extends Endpoint> = (request: Request) => Reply<Endpoints[E]>;
 
 export interface Network {
-  /** Answers `endpoint` for the rest of the test. */
+  /** Answers `endpoint` for the rest of the test. This wins over a default, even one registered later. */
   mock: <E extends Endpoint>(endpoint: E, respond: Respond<E>) => void;
+  /** For mocks/: answers `endpoint` unless the test mocks it. Registering it again replaces it. */
+  mockDefault: <E extends Endpoint>(endpoint: E, respond: Respond<E>) => void;
   /**
    * For the network rules' own test: returns the unmocked calls so far and forgets them, so they don't fail the test
    * when it ends. Any other test should mock the call instead.
@@ -25,9 +28,9 @@ export interface Network {
 
 /**
  * Answers or blocks every request the browser makes. The app's own files load as usual. API calls get the test's mocks,
- * the third parties in mocks/ get theirs, and anything else is aborted, so no test reaches the internet. An API call
- * with no mock gets a 404, and fails the test when it ends. Calls after the test body ends, as a closing page may
- * make, don't count.
+ * then the defaults. The third parties in mocks/ get theirs, and anything else is aborted, so no test reaches the
+ * internet. An API call with no mock gets a 404, and fails the test when it ends. Calls after the test body ends, as a
+ * closing page may make, don't count.
  */
 export const useNetwork = async (
   context: BrowserContext,
@@ -37,6 +40,7 @@ export const useNetwork = async (
   if (!baseURL) throw new Error('The network fixture needs `use.baseURL` to tell the app from everything else.');
   const appOrigin = new URL(baseURL).origin;
   const mocks = new Map<string, (request: Request) => Fulfill>();
+  const defaults = new Map<string, (request: Request) => Fulfill>();
   const unmocked = new Set<string>();
   let isTestRunning = true;
 
@@ -49,20 +53,24 @@ export const useNetwork = async (
   await context.route(`${API_ORIGIN}/**`, (route) => {
     const request = route.request();
     const endpoint = `${request.method()} ${new URL(request.url()).pathname}`;
-    const respond = mocks.get(endpoint);
+    const respond = mocks.get(endpoint) ?? defaults.get(endpoint);
     if (respond) return route.fulfill(respond(request));
     if (isTestRunning) unmocked.add(endpoint);
     return route.fulfill({ status: 404, body: `No mock for ${endpoint}` });
   });
 
-  await use({
+  const network: Network = {
     mock: (endpoint, respond) => void mocks.set(endpoint, respond),
+    mockDefault: (endpoint, respond) => void defaults.set(endpoint, respond),
     takeUnmocked: () => {
       const calls = [...unmocked];
       unmocked.clear();
       return calls;
     },
-  });
+  };
+  mockDefaults(network);
+
+  await use(network);
 
   isTestRunning = false;
   expect([...unmocked], 'API calls without a mock. Add the endpoint to mocks/endpoints.ts, then mock it.').toEqual([]);

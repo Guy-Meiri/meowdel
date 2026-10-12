@@ -46,3 +46,4 @@ order with `git log --reverse -p`.
 - `step-4-builders`: Builders that make test data in the app's own types, with defaults a test can override
 - `step-5-mocks`: Mocks that answer an endpoint with builders' data, defaults that answer what every page loads, and a
   `signIn` fixture that picks the user
+- `step-6-drivers`: Drivers that know how the page works, so tests read as `given`, `when` and `get`

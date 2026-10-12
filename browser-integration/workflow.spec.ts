@@ -1,26 +1,25 @@
 import { aModelResult } from './builders/model-result.builder';
-import { mockExecute } from './mocks/execute.mock';
+import { AppDriver } from './drivers/app.driver';
 import { expect, test } from './test';
 
 test('generating adds the model result for the prompt to the workflow', async ({ network, page }) => {
   const prompt = 'a cat in a tiny hat';
-  const result = mockExecute(network, aModelResult({ prompt }));
-  await page.goto('/');
+  const appDriver = new AppDriver(page, network);
+  const workflowDriver = await appDriver.openWorkflow();
+  const result = workflowDriver.given.executeReturns(aModelResult({ prompt }));
 
-  await page.getByLabel('Prompt').fill(prompt);
-  await page.getByRole('button', { name: 'Generate' }).click();
+  await workflowDriver.when.generate(prompt);
 
-  const image = page.getByRole('list', { name: 'Your cats' }).getByRole('img', { name: prompt, exact: true });
-  await expect(image).toHaveAttribute('src', result.imageUrl);
+  await expect(workflowDriver.get.modelResult(prompt)).toHaveAttribute('src', result.imageUrl);
   // A broken image has a naturalWidth of 0.
-  await expect(image).not.toHaveJSProperty('naturalWidth', 0);
+  await expect(workflowDriver.get.modelResult(prompt)).not.toHaveJSProperty('naturalWidth', 0);
 });
 
-test('with no credits left, Generate is disabled', async ({ page, signIn }) => {
+test('with no credits left, Generate is disabled', async ({ network, page, signIn }) => {
   signIn({ credits: 0 });
-  await page.goto('/');
+  const appDriver = new AppDriver(page, network);
+  const workflowDriver = await appDriver.openWorkflow();
 
-  // Wait for the user first: Generate is also disabled while they load.
-  await expect(page.getByText('0 credits')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Generate' })).toBeDisabled();
+  await expect(workflowDriver.get.credits()).toHaveText('Dana · 0 credits');
+  await expect(workflowDriver.get.generateButton()).toBeDisabled();
 });

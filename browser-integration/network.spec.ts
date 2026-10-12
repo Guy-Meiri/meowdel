@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { aUser } from './builders/user.builder';
 import { API_ORIGIN } from './fixtures/network.fixture';
 import { expect, test } from './test';
 
@@ -8,7 +9,7 @@ const statusOf = (page: Page, path: string): Promise<number> =>
 // If the network rules break, every other test keeps passing, so they get tests of their own.
 
 test('an API call without a mock gets a 404 and is recorded to fail the test', async ({ network, page }) => {
-  network.mock('GET /me', () => ({ json: { name: 'Dana', credits: 3 } }));
+  network.mock('GET /me', () => ({ json: aUser() }));
   network.mock('GET /results', () => ({ json: [] }));
   await page.goto('/');
 

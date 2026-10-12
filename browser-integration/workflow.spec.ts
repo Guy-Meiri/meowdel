@@ -1,10 +1,8 @@
 import { aModelResult } from './builders/model-result.builder';
-import { AppDriver } from './drivers/app.driver';
 import { expect, test } from './test';
 
-test('generating adds the model result for the prompt to the workflow', async ({ network, page }) => {
+test('generating adds the model result for the prompt to the workflow', async ({ appDriver }) => {
   const prompt = 'a cat in a tiny hat';
-  const appDriver = new AppDriver(page, network);
   const workflowDriver = await appDriver.openWorkflow();
   const result = workflowDriver.given.executeReturns(aModelResult({ prompt }));
 
@@ -15,9 +13,8 @@ test('generating adds the model result for the prompt to the workflow', async ({
   await expect(workflowDriver.get.modelResult(prompt)).not.toHaveJSProperty('naturalWidth', 0);
 });
 
-test('with no credits left, Generate is disabled', async ({ network, page, signIn }) => {
+test('with no credits left, Generate is disabled', async ({ appDriver, signIn }) => {
   signIn({ credits: 0 });
-  const appDriver = new AppDriver(page, network);
   const workflowDriver = await appDriver.openWorkflow();
 
   await expect(workflowDriver.get.credits()).toHaveText('Dana · 0 credits');

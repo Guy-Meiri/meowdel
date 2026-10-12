@@ -47,3 +47,21 @@ order with `git log --reverse -p`.
 - `step-5-mocks`: Mocks that answer an endpoint with builders' data, defaults that answer what every page loads, and a
   `signIn` fixture that picks the user
 - `step-6-drivers`: Drivers that know how the page works, so tests read as `given`, `when` and `get`
+- `step-7-together`: An `appDriver` fixture that hands each test its driver, so a spec reads like the scenario
+
+## How the tests fit together
+
+```
+browser-integration/
+  test.ts       the `test` every spec imports, with its fixtures: `network`, `signIn` and `appDriver`
+  fixtures/     network: what's answered, what's blocked, and what fails a test
+  builders/     test data in the app's types: aUser(), aModelResult()
+  mocks/        the fake backend: every endpoint tests can answer, the answers, and the defaults every test gets
+  drivers/      AppDriver opens pages; each page's driver has given, when and get
+  *.spec.ts     the tests
+```
+
+A test sets what the server answers through the helper that owns that data: `signIn({ credits: 0 })` for the user,
+`workflowDriver.given.executeReturns(aModelResult())` for what the model returns. Those call `mocks/`, which is the
+only place that names an endpoint. For anything else, such as an error, `network.mock` answers one endpoint for one
+test, and it wins over every default.

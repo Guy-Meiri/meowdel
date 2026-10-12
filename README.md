@@ -41,3 +41,4 @@ order with `git log --reverse -p`.
 - `step-2-page`: A test that uses only `page`, answering the API with `page.route`
 - `step-3a-fixture`: A `network` fixture, so a test answers the API with `network.mock`
 - `step-3b-offline`: Nothing leaves the machine: the app loads, images get a test cat, and everything else is blocked
+- `step-3c-unmocked`: An API call without a mock gets a 404 and fails the test

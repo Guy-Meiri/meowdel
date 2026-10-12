@@ -1,17 +1,21 @@
 import { type BrowserContext, expect, type Request, type Route } from '@playwright/test';
+import type { Endpoints } from '../mocks/endpoints';
 import { mockMedia } from '../mocks/media.mock';
 
 /** The app's API in tests (see .env.test). Nothing answers at this host; tests do, with `network.mock`. */
 export const API_ORIGIN = 'https://api.meowdel.test';
 
-/** An API endpoint, as `METHOD /path`: `'GET /results'`. */
-export type Endpoint = `${'GET' | 'POST' | 'PUT' | 'DELETE'} /${string}`;
-/** Answers one request. */
-export type Respond = (request: Request) => Parameters<Route['fulfill']>[0];
+/** An endpoint from mocks/endpoints.ts, as `METHOD /path`: `'GET /results'`. */
+export type Endpoint = keyof Endpoints;
+type Fulfill = NonNullable<Parameters<Route['fulfill']>[0]>;
+/** The body the app reads, or any reply with an explicit status, such as an error. */
+type Reply<Body> = (Omit<Fulfill, 'json'> & { json: Body }) | (Fulfill & { status: number });
+/** Answers one request to `E`. */
+export type Respond<E extends Endpoint> = (request: Request) => Reply<Endpoints[E]>;
 
 export interface Network {
   /** Answers `endpoint` for the rest of the test. */
-  mock: (endpoint: Endpoint, respond: Respond) => void;
+  mock: <E extends Endpoint>(endpoint: E, respond: Respond<E>) => void;
   /**
    * For the network rules' own test: returns the unmocked calls so far and forgets them, so they don't fail the test
    * when it ends. Any other test should mock the call instead.
@@ -32,7 +36,7 @@ export const useNetwork = async (
 ): Promise<void> => {
   if (!baseURL) throw new Error('The network fixture needs `use.baseURL` to tell the app from everything else.');
   const appOrigin = new URL(baseURL).origin;
-  const mocks = new Map<string, Respond>();
+  const mocks = new Map<string, (request: Request) => Fulfill>();
   const unmocked = new Set<string>();
   let isTestRunning = true;
 
@@ -61,5 +65,5 @@ export const useNetwork = async (
   });
 
   isTestRunning = false;
-  expect([...unmocked], 'API calls without a mock. Mock them in the test.').toEqual([]);
+  expect([...unmocked], 'API calls without a mock. Add the endpoint to mocks/endpoints.ts, then mock it.').toEqual([]);
 };
